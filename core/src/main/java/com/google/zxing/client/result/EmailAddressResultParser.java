@@ -42,7 +42,8 @@ public final class EmailAddressResultParser extends ResultParser {
         hostEmail = hostEmail.substring(0, queryStart);
       }
       try {
-        hostEmail = urlDecode(hostEmail);
+        // A '+' in a mailto address is a plus sign, not an encoded space (RFC 6068)
+        hostEmail = urlDecode(hostEmail.replace("+", "%2B"));
       } catch (IllegalArgumentException iae) {
         return null;
       }

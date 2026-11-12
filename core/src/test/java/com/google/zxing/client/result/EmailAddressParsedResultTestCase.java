@@ -71,6 +71,12 @@ public final class EmailAddressParsedResultTestCase extends Assert {
 
   
   @Test
+  public void testEmailAddressWithPlus() {
+    doTest("mailto:bill+ietf@example.org", "bill+ietf@example.org", null, null);
+    doTest("mailto:bill%2Bietf@example.org", "bill+ietf@example.org", null, null);
+  }
+
+  @Test
   public void testTos() {
     doTest("mailto:srowen@example.org,bob@example.org",
            new String[] {"srowen@example.org", "bob@example.org"},
