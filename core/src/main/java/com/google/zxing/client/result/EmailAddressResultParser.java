@@ -57,17 +57,19 @@ public final class EmailAddressResultParser extends ResultParser {
       String subject = null;
       String body = null;
       if (nameValues != null) {
+        // As above, a '+' in the addresses of the query is a plus sign
+        Map<String,String> addressValues = parseNameValuePairs(rawText.replace("+", "%2B"));
         if (tos == null) {
-          String tosString = nameValues.get("to");
+          String tosString = addressValues.get("to");
           if (tosString != null) {
             tos = COMMA.split(tosString);
           }
         }
-        String ccString = nameValues.get("cc");
+        String ccString = addressValues.get("cc");
         if (ccString != null) {
           ccs = COMMA.split(ccString);
         }
-        String bccString = nameValues.get("bcc");
+        String bccString = addressValues.get("bcc");
         if (bccString != null) {
           bccs = COMMA.split(bccString);
         }
