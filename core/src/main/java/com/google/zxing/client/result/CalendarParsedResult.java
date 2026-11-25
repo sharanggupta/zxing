@@ -19,9 +19,7 @@ package com.google.zxing.client.result;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -211,25 +209,23 @@ public final class CalendarParsedResult extends ParsedResult {
     }
     // The when string can be local time, or UTC if it ends with a Z
     if (when.length() == 16 && when.charAt(15) == 'Z') {
-      long milliseconds = parseDateTimeString(when.substring(0, 15));
-      Calendar calendar = new GregorianCalendar();
-      // Account for time zone difference
-      milliseconds += calendar.get(Calendar.ZONE_OFFSET);
-      // Might need to correct for daylight savings time, but use target time since
-      // now might be in DST but not then, or vice versa
-      calendar.setTime(new Date(milliseconds));
-      return milliseconds + calendar.get(Calendar.DST_OFFSET);
+      return parseDateTimeString(when.substring(0, 15), TimeZone.getTimeZone("GMT"));
     }
-    return parseDateTimeString(when);
+    return parseDateTimeString(when, TimeZone.getDefault());
   }
 
   private static String format(boolean allDay, long date) {
     if (date < 0L) {
       return null;
     }
-    DateFormat format = allDay
-        ? DateFormat.getDateInstance(DateFormat.MEDIUM)
-        : DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+    DateFormat format;
+    if (allDay) {
+      format = DateFormat.getDateInstance(DateFormat.MEDIUM);
+      // A date without a time is midnight of that day in GMT; see parseDate()
+      format.setTimeZone(TimeZone.getTimeZone("GMT"));
+    } else {
+      format = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+    }
     return format.format(date);
   }
 
@@ -251,8 +247,9 @@ public final class CalendarParsedResult extends ParsedResult {
     return durationMS;
   }
 
-  private static long parseDateTimeString(String dateTimeString) throws ParseException {
+  private static long parseDateTimeString(String dateTimeString, TimeZone timeZone) throws ParseException {
     DateFormat format = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.ENGLISH);
+    format.setTimeZone(timeZone);
     return format.parse(dateTimeString).getTime();
   }
 

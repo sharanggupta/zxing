@@ -248,6 +248,22 @@ public final class ParsedReaderResultTestCase extends Assert {
         ParsedResultType.URI);
   }
 
+  @Test
+  public void testVEventAllDayInOtherTimeZones() {
+    // An all day event is shown as the date it was given as, also west of Greenwich
+    String[] zones = {"America/Los_Angeles", "America/New_York", "Pacific/Honolulu", "Asia/Tokyo", "Pacific/Auckland"};
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    try {
+      for (String zone : zones) {
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        doTestResult("BEGIN:VEVENT\r\nSUMMARY:foo\r\nDTSTART:20080504\r\nDTEND:20080505\r\nEND:VEVENT",
+            "foo\n" + formatDate(2008, 5, 4) + "\n" + formatDate(2008, 5, 5), ParsedResultType.CALENDAR);
+      }
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+    }
+  }
+
   private static String formatDate(int year, int month, int day) {
     Calendar cal = Calendar.getInstance();
     cal.clear();

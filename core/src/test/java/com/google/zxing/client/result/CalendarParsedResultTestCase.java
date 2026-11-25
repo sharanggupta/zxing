@@ -59,6 +59,37 @@ public final class CalendarParsedResultTestCase extends Assert {
   }
 
   @Test
+  public void testUTCInOtherTimeZones() {
+    // Hours around a daylight saving change in each zone, and a date when Moscow was not at today's offset
+    String[] utcTimes = {
+        "20080309T063000Z", "20081102T053000Z", "20080330T003000Z", "20120101T120000Z", "20080704T120000Z"};
+    String[] zones = {"America/New_York", "America/Los_Angeles", "Europe/Moscow", "Europe/Berlin", "Asia/Tokyo"};
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    try {
+      for (String zone : zones) {
+        TimeZone.setDefault(TimeZone.getTimeZone(zone));
+        for (String utcTime : utcTimes) {
+          doTest("BEGIN:VEVENT\r\nDTSTART:" + utcTime + "\r\nEND:VEVENT", null, null, null, utcTime, null);
+        }
+      }
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+    }
+  }
+
+  @Test
+  public void testLocalTimeInOtherTimeZone() {
+    // A time without Z is still local time: 12:34:56 in New York is 16:34:56 UTC in May
+    TimeZone defaultTimeZone = TimeZone.getDefault();
+    try {
+      TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"));
+      doTest("BEGIN:VEVENT\r\nDTSTART:20080504T123456\r\nEND:VEVENT", null, null, null, "20080504T163456Z", null);
+    } finally {
+      TimeZone.setDefault(defaultTimeZone);
+    }
+  }
+
+  @Test
   public void testNoVCalendar() {
     doTest(
         "BEGIN:VEVENT\r\n" +
