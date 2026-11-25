@@ -103,6 +103,7 @@ public final class ExpandedProductParsedResult extends ParsedResult {
         && Objects.equals(sscc, other.sscc)
         && Objects.equals(lotNumber, other.lotNumber)
         && Objects.equals(productionDate, other.productionDate)
+        && Objects.equals(packagingDate, other.packagingDate)
         && Objects.equals(bestBeforeDate, other.bestBeforeDate)
         && Objects.equals(expirationDate, other.expirationDate)
         && Objects.equals(weight, other.weight)
@@ -120,6 +121,7 @@ public final class ExpandedProductParsedResult extends ParsedResult {
     hash ^= Objects.hashCode(sscc);
     hash ^= Objects.hashCode(lotNumber);
     hash ^= Objects.hashCode(productionDate);
+    hash ^= Objects.hashCode(packagingDate);
     hash ^= Objects.hashCode(bestBeforeDate);
     hash ^= Objects.hashCode(expirationDate);
     hash ^= Objects.hashCode(weight);

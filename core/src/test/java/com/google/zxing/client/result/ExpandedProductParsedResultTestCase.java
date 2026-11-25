@@ -65,6 +65,23 @@ public final class ExpandedProductParsedResultTestCase extends Assert {
   }
 
   @Test
+  public void testEqualsAndHashCode() {
+    // production, packaging, best before and expiration date
+    for (String ai : new String[] {"11", "13", "15", "17"}) {
+      ExpandedProductParsedResult result = parse("(01)66546(" + ai + ")001205");
+      ExpandedProductParsedResult same = parse("(01)66546(" + ai + ")001205");
+      assertEquals(result, same);
+      assertEquals(result.hashCode(), same.hashCode());
+      ExpandedProductParsedResult otherDate = parse("(01)66546(" + ai + ")001206");
+      assertNotEquals(result, otherDate);
+      assertNotEquals(result.hashCode(), otherDate.hashCode());
+      ExpandedProductParsedResult noDate = parse("(01)66546");
+      assertNotEquals(result, noDate);
+      assertNotEquals(noDate, result);
+    }
+  }
+
+  @Test
   public void testUnterminatedAI() {
     // an AI that is not closed by ')' must not match, rather than read past the end of the text
     ExpandedProductResultParser parser = new ExpandedProductResultParser();
@@ -73,4 +90,9 @@ public final class ExpandedProductParsedResultTestCase extends Assert {
     // a valid prefix followed by a truncated final AI must parse without throwing
     assertNotNull(parser.parse(new Result("(01)66546(13)001205(3932", null, null, BarcodeFormat.RSS_EXPANDED)));
   }
+
+  private static ExpandedProductParsedResult parse(String text) {
+    return new ExpandedProductResultParser().parse(new Result(text, null, null, BarcodeFormat.RSS_EXPANDED));
+  }
+
 }
