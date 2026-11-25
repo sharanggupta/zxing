@@ -75,12 +75,14 @@ public final class CodaBarWriter extends OneDimensionalCodeWriter {
     // The start character and the end character are decoded to 10 length each.
     int resultLength = 20;
     for (int i = 1; i < contents.length() - 1; i++) {
-      if (Character.isDigit(contents.charAt(i)) || contents.charAt(i) == '-' || contents.charAt(i) == '$') {
+      char c = contents.charAt(i);
+      // Only ASCII digits have an encoding; Character.isDigit() accepts digits of other scripts too
+      if ((c >= '0' && c <= '9') || c == '-' || c == '$') {
         resultLength += 9;
-      } else if (CodaBarReader.arrayContains(CHARS_WHICH_ARE_TEN_LENGTH_EACH_AFTER_DECODED, contents.charAt(i))) {
+      } else if (CodaBarReader.arrayContains(CHARS_WHICH_ARE_TEN_LENGTH_EACH_AFTER_DECODED, c)) {
         resultLength += 10;
       } else {
-        throw new IllegalArgumentException("Cannot encode : '" + contents.charAt(i) + '\'');
+        throw new IllegalArgumentException("Cannot encode : '" + c + '\'');
       }
     }
     // A blank is placed between each character.

@@ -50,6 +50,19 @@ public final class CodaBarWriterTestCase extends Assert {
     assertEquals(encode("T123456789-$T"), encode("A123456789-$A"));
   }
 
+  @Test
+  public void testNonAsciiDigits() {
+    // Digits of other scripts have no Codabar encoding
+    for (String contents : new String[] {"A\u0661\u0662\u0663A", "\u0661\u0662\u0663", "12\uFF1345", "A1\u09E7B"}) {
+      try {
+        encode(contents);
+        fail("Expected IllegalArgumentException for " + contents);
+      } catch (IllegalArgumentException iae) {
+        assertTrue(iae.getMessage(), iae.getMessage().startsWith("Cannot encode"));
+      }
+    }
+  }
+
   private static void doTest(String input, CharSequence expected) {
     BitMatrix result = encode(input);
     assertEquals(expected, BitMatrixTestCase.matrixToString(result));
