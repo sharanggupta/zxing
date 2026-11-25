@@ -193,7 +193,7 @@ public final class VCardResultParser extends ResultParser {
           element = VCARD_ESCAPES.matcher(element).replaceAll("$1");
         }
         // Only handle VALUE=uri specially
-        if ("uri".equals(valueType)) {
+        if ("uri".equalsIgnoreCase(valueType)) {
           // Don't actually support dereferencing URIs, but use scheme-specific part not URI
           // as value, to support tel: and mailto:
           try {

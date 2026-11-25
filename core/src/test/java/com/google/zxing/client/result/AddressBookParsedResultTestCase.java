@@ -128,6 +128,16 @@ public final class AddressBookParsedResultTestCase extends Assert {
 
     doTest("BEGIN:VCARD\r\nN;VALUE=text:Owen;Sean\r\nEND:VCARD",
         null, new String[] {"Sean Owen"}, null, null, null, null, null, null, null, null, null);
+
+    // The value type is not case-sensitive, like the parameter name
+    doTest("BEGIN:VCARD\r\nTEL;VALUE=URI:tel:+1-555-555-1212\r\nEND:VCARD",
+        null, null, null, null, null, new String[] { "+1-555-555-1212" }, new String[] { null },
+        null, null, null, null);
+    doTest("BEGIN:VCARD\r\nTEL;value=Uri:tel:+1-555-555-1212\r\nEND:VCARD",
+        null, null, null, null, null, new String[] { "+1-555-555-1212" }, new String[] { null },
+        null, null, null, null);
+    doTest("BEGIN:VCARD\r\nEMAIL;VALUE=URI:mailto:srowen@example.org\r\nEND:VCARD",
+        null, null, null, null, new String[] { "srowen@example.org" }, null, null, null, null, null, null);
   }
 
   @Test
