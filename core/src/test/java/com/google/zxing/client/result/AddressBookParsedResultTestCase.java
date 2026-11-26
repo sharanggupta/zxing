@@ -118,6 +118,19 @@ public final class AddressBookParsedResultTestCase extends Assert {
                    null, null, null, null, null, null, null, null, null, null, "foo\\bar");
     doTest("BEGIN:VCARD\r\nNOTE:foo\\,bar\r\nEND:VCARD",
                        null, null, null, null, null, null, null, null, null, null, "foo,bar");
+    doTest("BEGIN:VCARD\r\nNOTE:foo\\Nbar\r\nEND:VCARD",
+           null, null, null, null, null, null, null, null, null, null, "foo\nbar");
+    // An escaped backslash is not the start of the next escape: C:\new folder, a\;b
+    doTest("BEGIN:VCARD\r\nNOTE:C:\\\\new folder\r\nEND:VCARD",
+           null, null, null, null, null, null, null, null, null, null, "C:\\new folder");
+    doTest("BEGIN:VCARD\r\nNOTE:a\\\\;b\r\nEND:VCARD",
+           null, null, null, null, null, null, null, null, null, null, "a\\;b");
+    // An escaped backslash followed by an escaped newline
+    doTest("BEGIN:VCARD\r\nNOTE:foo\\\\\\nbar\r\nEND:VCARD",
+           null, null, null, null, null, null, null, null, null, null, "foo\\\nbar");
+    // A backslash before any other character, or at the end, is kept
+    doTest("BEGIN:VCARD\r\nNOTE:a\\tb\\\r\nEND:VCARD",
+           null, null, null, null, null, null, null, null, null, null, "a\\tb\\");
   }
 
   @Test

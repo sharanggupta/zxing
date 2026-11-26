@@ -39,8 +39,6 @@ public final class VCardResultParser extends ResultParser {
   private static final Pattern BEGIN_VCARD = Pattern.compile("BEGIN:VCARD", Pattern.CASE_INSENSITIVE);
   private static final Pattern VCARD_LIKE_DATE = Pattern.compile("\\d{4}-?\\d{2}-?\\d{2}");
   private static final Pattern CR_LF_SPACE_TAB = Pattern.compile("\r\n[ \t]");
-  private static final Pattern NEWLINE_ESCAPE = Pattern.compile("\\\\[nN]");
-  private static final Pattern VCARD_ESCAPES = Pattern.compile("\\\\([,;\\\\])");
   private static final Pattern EQUALS = Pattern.compile("=");
   private static final Pattern SEMICOLON = Pattern.compile(";");
   private static final Pattern UNESCAPED_SEMICOLONS = Pattern.compile("(?<!\\\\);+");
@@ -189,8 +187,7 @@ public final class VCardResultParser extends ResultParser {
             element = UNESCAPED_SEMICOLONS.matcher(element).replaceAll("\n").trim();
           }
           element = CR_LF_SPACE_TAB.matcher(element).replaceAll("");
-          element = NEWLINE_ESCAPE.matcher(element).replaceAll("\n");
-          element = VCARD_ESCAPES.matcher(element).replaceAll("$1");
+          element = unescape(element);
         }
         // Only handle VALUE=uri specially
         if ("uri".equals(valueType)) {
@@ -218,6 +215,31 @@ public final class VCardResultParser extends ResultParser {
     }
 
     return matches;
+  }
+
+  /**
+   * Replaces the vCard escapes for newline, comma, semicolon and backslash in one pass, so that
+   * an escaped backslash is not read again as the start of the next escape.
+   */
+  private static String unescape(String element) {
+    int length = element.length();
+    StringBuilder result = new StringBuilder(length);
+    int i = 0;
+    while (i < length) {
+      char c = element.charAt(i++);
+      if (c == '\\' && i < length) {
+        char next = element.charAt(i);
+        if (next == 'n' || next == 'N') {
+          c = '\n';
+          i++;
+        } else if (next == ',' || next == ';' || next == '\\') {
+          c = next;
+          i++;
+        }
+      }
+      result.append(c);
+    }
+    return result.toString();
   }
 
   private static String decodeQuotedPrintable(CharSequence value, String charset) {
